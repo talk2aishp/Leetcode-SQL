@@ -1,0 +1,60 @@
+Table: Candidate
+
++-----+---------+
+| id  | Name    |
++-----+---------+
+| 1   | A       |
+| 2   | B       |
+| 3   | C       |
+| 4   | D       |
+| 5   | E       |
++-----+---------+  
+Table: Vote
+
++-----+--------------+
+| id  | CandidateId  |
++-----+--------------+
+| 1   |     2        |
+| 2   |     4        |
+| 3   |     3        |
+| 4   |     2        |
+| 5   |     5        |
++-----+--------------+
+id is the auto-increment primary key,
+CandidateId is the id appeared in Candidate table.
+Write a sql to find the name of the winning candidate, the above example will return the winner B.
+
++------+
+| Name |
++------+
+| B    |
++------+
+
+SOLUTION 1
+--------
+
+WITH CTE 
+AS
+(
+SELECT c.name,count(V.candidateid) CNT
+FROM vote V
+LEFT JOIN candidate C on V.candidateid = C.id
+GROUP BY c.name
+    )
+SELECT NAME
+FROM(
+SELECT NAME , RANK() OVER(ORDER BY cnt DESC) rnk
+FROM CTE ) A
+WHERE rnk = 1
+
+SOLUTION 2
+----------
+SELECT TOP 1 
+FROM
+(
+SELECT c.name,count(V.candidateid) CNT
+FROM vote V
+LEFT JOIN candidate C on V.candidateid = C.id
+GROUP BY c.name
+)
+ORDER BY CNT DESC
